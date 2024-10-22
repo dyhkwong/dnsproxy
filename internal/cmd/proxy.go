@@ -80,6 +80,7 @@ func createProxyConfig(
 		UsePrivateRDNS:         conf.UsePrivateRDNS,
 		PrivateSubnets:         netutil.SubnetSetFunc(netutil.IsLocallyServed),
 		RequestHandler:         reqHdlr.HandleRequest,
+		HTTPPath:               conf.HTTPPath,
 	}
 
 	if uiStr := conf.HTTPSUserinfo; uiStr != "" {

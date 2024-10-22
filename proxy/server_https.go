@@ -168,6 +168,10 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if !p.checkPath(w, r, raddr) {
+		return
+	}
+
 	req, statusCode := newDoHReq(r, p.logger)
 	if req == nil {
 		http.Error(w, http.StatusText(statusCode), statusCode)
@@ -197,6 +201,26 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		p.logger.Debug("handling dns request", "proto", d.Proto, slogutil.KeyError, err)
 	}
+}
+
+func (p *Proxy) checkPath(
+	w http.ResponseWriter,
+	r *http.Request,
+	raddr netip.AddrPort,
+) (shouldHandle bool) {
+	if len(p.Config.HTTPPath) == 0 {
+		return false
+	}
+	if p.Config.HTTPPath[0] != '/' {
+		p.logger.Error("invalid path set", "path", p.Config.HTTPPath)
+		return false
+	}
+	if p.Config.HTTPPath == r.URL.Path {
+		return true
+	}
+	p.logger.Error("invalid path", "path", r.URL.Path, "raddr", raddr)
+	http.Error(w, "Forbidden", http.StatusForbidden)
+	return false
 }
 
 // checkBasicAuth checks the basic authorization data, if necessary, and if the

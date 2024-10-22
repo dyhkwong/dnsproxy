@@ -187,6 +187,8 @@ type configuration struct {
 	// lookups of private addresses, including the requests for authority
 	// records, such as SOA and NS.
 	UsePrivateRDNS bool `yaml:"use-private-rdns"`
+
+	HTTPPath string `yaml:"http-path" long:"http-path" description:"Set path for the HTTPS server." default:""`
 }
 
 // parseConfig returns options parsed from the command args or config file.  If
